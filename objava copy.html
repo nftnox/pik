@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+<!-- Firebase App (Core) -->
+<script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app.js"></script>
+<!-- Firebase Firestore -->
+<script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore.js"></script>
+
+   
+    <title>Objava Oglasa</title>
+   
+</head>
+<body>
+    <div class="container">
+        <h1>Objavite oglas</h1>
+        <div class="options">
+            <div id="automobil" onclick="selectCategory('automobil')">
+                <span class="material-icons">directions_car</span>
+                <p>Automobil</p>
+            </div>
+            
+            <div id="nekretnina" onclick="selectCategory('nekretnina')">
+                <img src="https://fonts.gstatic.com/s/i/materialicons/home/v1/24px.svg" alt="Nekretnina">
+                <p>Nekretnina</p>
+            </div>
+            <div id="usluga" onclick="selectCategory('usluga')">
+                <img src="https://fonts.gstatic.com/s/i/materialicons/build/v1/24px.svg" alt="Usluga">
+                <p>Usluga</p>
+            </div>
+            <div id="posao" onclick="selectCategory('posao')">
+                <img src="https://fonts.gstatic.com/s/i/materialicons/work/v1/24px.svg" alt="Posao">
+                <p>Posao</p>
+            </div>
+            <div id="nestoDrugo" onclick="selectCategory('nestoDrugo')">
+                <img src="https://fonts.gstatic.com/s/i/materialicons/help/v1/24px.svg" alt="Objavite nešto drugo">
+                <p>Objavite nešto drugo</p>
+            </div>
+            
+        </div>
+        <div id="stepContainer" class="step active">
+            <!-- Ovdje se dinamički dodaju koraci -->
+        </div>
+        <button id="nextButton">Nastavi</button>
+    </div>
+
+    <script>
+        let currentStep = 0;
+
+        function selectCategory(category) {
+            const stepContainer = document.getElementById('stepContainer');
+            const nextButton = document.getElementById('nextButton');
+            
+            if (category === 'automobil') {
+                stepContainer.innerHTML = `
+                    <div class="input-group">
+                        <label>Odaberite brend:</label>
+                        <select id="brandSelect">
+                            <option value="audi">Audi</option>
+                            <option value="bmw">BMW</option>
+                            <option value="mercedes">Mercedes</option>
+                        </select>
+                    </div>`;
+                currentStep = 1;
+                nextButton.classList.remove('hidden');
+            }
+        }
+
+        document.getElementById('nextButton').addEventListener('click', function() {
+            const stepContainer = document.getElementById('stepContainer');
+            
+            if (currentStep === 1) {
+                const brand = document.getElementById('brandSelect').value;
+                
+                if (brand === 'audi') {
+                    stepContainer.innerHTML = `
+                        <div class="input-group">
+                            <label>Odaberite model:</label>
+                            <select id="modelSelect">
+                                <option value="a1">A1</option>
+                                <option value="a2">A2</option>
+                                <option value="a3">A3</option>
+                                <option value="a4">A4</option>
+                                <option value="a5">A5</option>
+                                <option value="a6">A6</option>
+                                <option value="a7">A7</option>
+                            </select>
+                        </div>`;
+                }
+                // Sličan kod za BMW i Mercedes može biti dodan ovdje
+                currentStep = 2;
+            } else if (currentStep === 2) {
+                stepContainer.innerHTML = `
+                    <div class="input-group">
+                        <label>Stanje:</label>
+                        <select>
+                            <option value="novo">Novo</option>
+                            <option value="koristeno">Korišteno</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Lokacija:</label>
+                        <select>
+                            <option value="sarajevo">Sarajevo</option>
+                            <option value="banjaluka">Banja Luka</option>
+                            <option value="mostar">Mostar</option>
+                            <option value="tuzla">Tuzla</option>
+                            <option value="zenica">Zenica</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Cijena:</label>
+                        <input type="text" placeholder="Unesite cijenu">
+                    </div>
+                    <div class="input-group">
+                        <label>Detaljan opis:</label>
+                        <textarea placeholder="Unesite detaljan opis..."></textarea>
+                    </div>`;
+                currentStep = 3;
+            } else if (currentStep === 3) {
+                stepContainer.innerHTML = `
+                    <div class="input-group">
+                        <label>Godište:</label>
+                        <input type="text" placeholder="Unesite godište">
+                    </div>
+                    <div class="input-group">
+                        <label>Gorivo:</label>
+                        <select>
+                            <option value="benzin">Benzin</option>
+                            <option value="dizel">Dizel</option>
+                            <option value="plin">Plin</option>
+                            <option value="hibrid">Hibrid</option>
+                            <option value="elektro">Elektro</option>
+
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Transmisija:</label>
+                        <select>
+                            <option value="automatik">Automatik</option>
+                            <option value="manuelni">Manuelni</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Kilometraža:</label>
+                        <input type="text" placeholder="Unesite kilometražu">
+                    </div>
+                    <div class="input-group">
+                        <label>Kubikaža:</label>
+                        <input type="text" placeholder="Unesite kubikažu">
+                    </div>
+                    <div class="input-group">
+                        <label>Snaga motora (kW):</label>
+                        <input type="text" placeholder="Unesite snagu motora">
+                    </div>
+                     <div class="input-group">
+                        <label>Broj vrata:</label>
+                        <select>
+                            <option value="2/3">2/3</option>
+                            <option value="4/5">4/5</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <div class="form-step" id="dodatneInformacije">
+    <h2>Dodatne informacije</h2>
+    <div class="form-group">
+        <label for="konjskihSnaga">Konjske snage:</label>
+        <input type="text" id="konjskihSnaga" name="konjskihSnaga">
+    </div>
+     <div class="input-group">
+                        <label>Tip:</label>
+                        <select>
+                            <option value="limuzina">Limuzina</option>
+                            <option value="malo auto">Malo auto</option>
+                            <option value="karavan">Karavan</option>
+                            <option value="monovolumen">Monovolumen</option>
+                            <option value="kombi">Kombi</option>
+                            <option value="terenac">Terenac</option>
+                            <option value="suv">SUV</option>
+                            <option value="kabriolet">Kabriolet</option>
+                            <option value="sportski/kupe">Sportski/kupe</option>
+                            <option value="off road">Off Road</option>
+                            <option value="caddy">Caddy</option>
+                            <option value="pick up">Pick up</option>
+                            <option value="oldtimer">Oldtimer</option>
+                            <option value="ostalo">Ostalo</option>
+                            
+                        </select>
+                    </div>
+   <div class="input-group">
+                        <label>Pogon:</label>
+                        <select>
+                            <option value="prednji">Prednji</option>
+                            <option value="zadnji">Zadnji</option>
+                            <option value="4x4">4x4</option>
+                        </select>
+                    </div>
+    <div class="form-group">
+        <label for="godinaPrveRegistracije">Godina prve registracije:</label>
+        <input type="text" id="godinaPrveRegistracije" name="godinaPrveRegistracije">
+    </div>
+    <div class="form-group">
+        <label for="boja">Boja:</label>
+        <input type="text" id="boja" name="boja">
+    </div>
+    <div class="form-group">
+        <label for="velicinaFelgi">Velicina felgi:</label>
+        <input type="text" id="velicinaFelgi" name="velicinaFelgi">
+    </div>
+    <div class="form-group">
+        <label for="muzika">Muzika:</label>
+        <input type="text" id="muzika" name="muzika">
+    </div>
+    <div class="input-group">
+                        <label>Parking senzori:</label>
+                        <select>
+                            <option value="nema">Nema</option>
+                            <option value="naprijed">Naprijed</option>
+                            <option value="nazadd">Nazad</option>
+                            <option value="Naprijed i nazad">Naprijed i nazad</option>
+                        </select>
+                    </div>
+    <div class="form-group">
+        <label for="parkingKamera">Parking kamera:</label>
+        <input type="text" id="parkingKamera" name="parkingKamera">
+    </div>
+    <div class="form-group">
+        <label for="svjetla">Svjetla:</label>
+        <input type="text" id="svjetla" name="svjetla">
+    </div>
+    <div class="form-group">
+        <label for="zastitaBlokada">Zaštita-Blokada:</label>
+        <input type="text" id="zastitaBlokada" name="zastitaBlokada">
+    </div>
+    <div class="form-group">
+        <label for="brojStepeniPrijenosa">Broj stepeni prijenosa:</label>
+        <input type="text" id="brojStepeniPrijenosa" name="brojStepeniPrijenosa">
+    </div>
+    <div class="form-group">
+        <label for="posjedujeGume">Posjeduje gume:</label>
+        <input type="text" id="posjedujeGume" name="posjedujeGume">
+    </div>
+    <div class="form-group">
+        <label for="emisioniStandard">Emisioni standard:</label>
+        <input type="text" id="emisioniStandard" name="emisioniStandard">
+    </div>
+    <div class="form-group">
+        <label for="brojPrethodnihVlasnika">Broj prethodnih vlasnika:</label>
+        <input type="text" id="brojPrethodnihVlasnika" name="brojPrethodnihVlasnika">
+    </div>
+    <div class="form-group">
+        <label for="masa">Masa (kg):</label>
+        <input type="text" id="masa" name="masa">
+    
+
+                    </div>`;
+                currentStep = 4;
+            } else if (currentStep === 4) {
+                stepContainer.innerHTML = `
+                    <h2>Dodatne informacije</h2>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox"> Registrovan</label>
+                        <label><input type="checkbox"> Metalik</label>
+                        <label><input type="checkbox"> Alu felge</label>
+                        <label><input type="checkbox"> Digitalna klima</label>
+                        <label><input type="checkbox"> Komande na volanu</label>
+                                                <label><input type="checkbox"> Navigacija</label>
+                        <label><input type="checkbox"> Touch Screen</label>
+                        <label><input type="checkbox"> Head up Display</label>
+                        <label><input type="checkbox"> USB port</label>
+                        <label><input type="checkbox"> Tempomat</label>
+                        <label><input type="checkbox"> Bluetooth</label>
+                        <label><input type="checkbox"> CarPlay</label>
+                        <label><input type="checkbox"> Senzor kiše</label>
+                        <label><input type="checkbox"> Park assist</label>
+                        <label><input type="checkbox"> Senzor automatskih svjetala</label>
+                        <label><input type="checkbox"> Senzor mrtvog ugla</label>
+                        <label><input type="checkbox"> Start-Stop sistem</label>
+                        <label><input type="checkbox"> Hill assist</label>
+                        <label><input type="checkbox"> Memorija sjedišta</label>
+                        <label><input type="checkbox"> Grijanje sjedišta</label>
+                        <label><input type="checkbox"> Hlađenje sjedišta</label>
+                        <label><input type="checkbox"> El. podizači stakala</label>
+                        <label><input type="checkbox"> El. pomjeranje sjedišta</label>
+                        <label><input type="checkbox"> Naslon za ruku</label>
+                        <label><input type="checkbox"> Panorama krov</label>
+                        <label><input type="checkbox"> Šiber</label>
+                        <label><input type="checkbox"> Maglenke</label>
+                        <label><input type="checkbox"> Električni retrovizori</label>
+                        <label><input type="checkbox"> Alarm</label>
+                        <label><input type="checkbox"> Centralna brava</label>
+                        <label><input type="checkbox"> Daljinsko otključavanje</label>
+                        <label><input type="checkbox"> Airbag</label>
+                        <label><input type="checkbox"> ABS</label>
+                        <label><input type="checkbox"> ESP</label>
+                        <label><input type="checkbox"> DPF</label>
+                        <label><input type="checkbox"> Servo volan</label>
+                        <label><input type="checkbox"> Turbo</label>
+                        <label><input type="checkbox"> ISOFIX</label>
+                        <label><input type="checkbox"> Auto kuka</label>
+                        <label><input type="checkbox"> Ocarinjen</label>
+                        <label><input type="checkbox"> Strane tablice</label>
+                        <label><input type="checkbox"> Leasing</label>
+                        <label><input type="checkbox"> Servisna knjiga</label>
+                        <label><input type="checkbox"> Oštećen</label>
+                        <label><input type="checkbox"> Oldtimer</label>
+                    </div>`;
+                currentStep = 5;
+            } else if (currentStep === 5) {
+                stepContainer.innerHTML = `
+                    <div class="image-upload">
+                        <h2>Upload slika:</h2>
+                        <input type="file" multiple>
+                        <button id="submitButton">Objavi</button>
+
+                    </div>`;
+                    
+                currentStep = 6;
+                nextButton.classList.add('hidden');
+            }
+        });
+    </script>
+
+
+
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f4f4f4;
+        margin: 0;
+        padding: 20px;
+    }
+    .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #fff;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        border-radius: 5px;
+    }
+    h1, h2 {
+        text-align: center;
+        color: #333;
+    }
+    .options {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+    }
+    .options div {
+        text-align: center;
+        cursor: pointer;
+    }
+    .options img {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 10px;
+    }
+    .step {
+        display: none;
+    }
+    .active {
+        display: block;
+    }
+    .input-group {
+        margin-bottom: 15px;
+    }
+    label {
+        display: block;
+        margin-bottom: 5px;
+        color: #666;
+    }
+    input[type="text"],
+    select {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+    }
+    textarea {
+        width: 100%;
+        padding: 8px;
+        box-sizing: border-box;
+        min-height: 100px;
+        resize: vertical;
+    }
+    .checkbox-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+    }
+    .checkbox-group label {
+        width: 48%;
+        margin-bottom: 10px;
+    }
+    .image-upload {
+        text-align: center;
+    }
+    .hidden {
+        display: none;
+    }
+    button {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: 20px;
+        display: block;
+        width: 100%;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+
+</body>
+</html>
+

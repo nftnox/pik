@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Objavite Oglas</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts Icon -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getFirestore, collection, addDoc, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyDD_aYHztx16Gp0f0icIO3CdM-XfoDsvr4",
+            authDomain: "pik1-374bc.firebaseapp.com",
+            projectId: "pik1-374bc",
+            storageBucket: "pik1-374bc.appspot.com",
+            messagingSenderId: "38745525009",
+            appId: "1:38745525009:web:a577fdad0e3cdbb25fdab0",
+            measurementId: "G-HZN6ZC9CG0"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+    
+        document.addEventListener('DOMContentLoaded', () => {
+            const brandSection = document.getElementById('brand-section');
+            const modelSection = document.getElementById('model-section');
+            const conditionSection = document.getElementById('condition-section');
+            const additionalInfoSection = document.getElementById('additional-info-section');
+            const optionsSection = document.getElementById('options-section');
+            const imageUploadSection = document.getElementById('image-upload-section');
+            const continueButton = document.getElementById('continue-button');
+            const finalPublishButton = document.getElementById('final-publish-button');
+            const brandSelect = document.getElementById('brand-select');
+            const modelSelect = document.getElementById('model-select');
+            const categoryButtons = document.querySelectorAll('.category-button');
+            const imageUpload = document.getElementById('image-upload');
+    
+            const models = {
+                Audi: ['A1', 'A3', 'A4', 'A6', 'Q3', 'Q5'],
+                BMW: ['1 Series', '2 Series', '3 Series', '4 Series', '5 Series', 'X3'],
+                Mercedes: ['A-Class', 'C-Class', 'E-Class', 'S-Class', 'GLA', 'GLE']
+            };
+    
+            let step = 0;
+            let imageFiles = [];
+    
+            continueButton.classList.add('hidden');
+    
+            categoryButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const sectionId = button.getAttribute('data-section');
+                    
+                    document.querySelectorAll('.publish-section > div').forEach(section => {
+                        if (section.id === sectionId) {
+                            section.style.display = 'block';
+                            if (sectionId === 'brand-section') {
+                                continueButton.classList.remove('hidden');
+                            } else {
+                                continueButton.classList.add('hidden');
+                            }
+                        } else {
+                            section.style.display = 'none';
+                        }
+                    });
+    
+                    finalPublishButton.style.display = 'none';
+                });
+            });
+    
+            brandSelect.addEventListener('change', () => {
+                const selectedBrand = brandSelect.value;
+                modelSelect.innerHTML = '<option value="">Odaberi model</option>'; // Reset models
+    
+                if (models[selectedBrand]) {
+                    models[selectedBrand].forEach(model => {
+                        const option = document.createElement('option');
+                        option.value = model;
+                        option.textContent = model;
+                        modelSelect.appendChild(option);
+                    });
+                }
+            });
+    
+            continueButton.addEventListener('click', () => {
+                if (step === 0) {
+                    brandSection.style.display = 'none';
+                    modelSection.style.display = 'block';
+                    step++;
+                } else if (step === 1) {
+                    modelSection.style.display = 'none';
+                    conditionSection.style.display = 'block';
+                    step++;
+                } else if (step === 2) {
+                    conditionSection.style.display = 'none';
+                    additionalInfoSection.style.display = 'block';
+                    step++;
+                }
+                else if (step === 3) {
+                  additionalInfoSection.style.display = 'none';
+                  optionsSection.style.display = 'block';
+                  step++;
+                }
+                else if (step === 4) {
+                    optionsSection.style.display = 'none';
+                    imageUploadSection.style.display = 'block';
+                    continueButton.classList.add('hidden');
+                    finalPublishButton.style.display = 'block';
+                    step++;
+                }
+            });
+    
+            imageUpload.addEventListener('change', (event) => {
+                imageFiles = event.target.files;
+            });
+    
+
+
+
+
+            
+          finalPublishButton.addEventListener('click', async () => {
+    const brand = brandSelect.value;
+    const model = modelSelect.value;
+    const condition = document.getElementById('condition-select').value;
+    const location = document.getElementById('location-select').value;
+    const price = document.getElementById('price').value;
+    const description = document.getElementById('description').value;
+    const shortDescription = document.getElementById('short-description').value;
+
+    const godiste = document.getElementById('godiste').value;
+    const gorivo = document.getElementById('gorivo').value;
+    const transmisija = document.getElementById('transmisija').value;
+    const kilometraza = document.getElementById('kilometraza').value;
+    const kubikaza = document.getElementById('kubikaza').value;
+    const snaga = document.getElementById('snaga').value;
+    const vrata = document.getElementById('vrata').value;
+    const konjskeSnage = document.getElementById('konjske-snage').value;
+    const tip = document.getElementById('tip').value;
+    const pogon = document.getElementById('pogon').value;
+    const prvaRegistracija = document.getElementById('prva-registracija').value;
+    const boja = document.getElementById('boja').value;
+    const velicinaFelgi = document.getElementById('velicina-felgi').value;
+    const muzika = document.getElementById('muzika').value;
+    const parkingSenzori = document.getElementById('parking-senzori').value;
+    const parkingKamera = document.getElementById('parking-kamera').value;
+    const svjetla = document.getElementById('svjetla').value;
+    const zastita = document.getElementById('zastita').value;
+    const brojStepeni = document.getElementById('broj-stepeni').value;
+    const gume = document.getElementById('gume').value;
+    const emisioniStandard = document.getElementById('emisioni-standard').value;
+    const masa = document.getElementById('masa').value;
+    const vlasnici = document.getElementById('vlasnici').value;
+
+    const registered = document.getElementById('registered').checked;
+    const metallic = document.getElementById('metallic').checked;
+    const damaged = document.getElementById('damaged').checked;
+    const oldtimer = document.getElementById('oldtimer').checked;
+    const navigation = document.getElementById('navigation').checked;
+
+    let imageUrls = [];
+    const imageFiles = document.getElementById('image-upload').files;
+
+    if (imageFiles.length > 0) {
+        try {
+            console.log('Starting image upload...');
+            for (const file of imageFiles) {
+                const imageRef = ref(storage, `images/${file.name}`);
+                console.log(`Uploading ${file.name}...`);
+                await uploadBytes(imageRef, file);
+                const url = await getDownloadURL(imageRef);
+                console.log(`Image uploaded. URL: ${url}`);
+                imageUrls.push(url);
+            }
+        } catch (uploadError) {
+            console.error('Error uploading image:', uploadError);
+            alert('Greška prilikom učitavanja slika.');
+            return;
+        }
+    } else {
+        console.log('No images to upload.');
+    }
+
+    try {
+        console.log('Adding document to Firestore...');
+        const username = localStorage.getItem('username'); // Retrieve the username from localStorage
+
+        await addDoc(collection(db, 'automobili'), {
+            brand: brand,
+            model: model,
+            condition: condition,
+            location: location,
+            price: price,
+            description: description,
+            shortDescription: shortDescription,
+            godiste: godiste,
+            gorivo: gorivo,
+            transmisija: transmisija,
+            kilometraza: kilometraza,
+            kubikaza: kubikaza,
+            snaga: snaga,
+            vrata: vrata,
+            konjskeSnage: konjskeSnage,
+            tip: tip,
+            pogon: pogon,
+            prvaRegistracija: prvaRegistracija,
+            boja: boja,
+            velicinaFelgi: velicinaFelgi,
+            muzika: muzika,
+            parkingSenzori: parkingSenzori,
+            parkingKamera: parkingKamera,
+            svjetla: svjetla,
+            zastita: zastita,
+            brojStepeni: brojStepeni,
+            gume: gume,
+            emisioniStandard: emisioniStandard,
+            masa: masa,
+            vlasnici: vlasnici,
+            registered: registered,
+            metallic: metallic,
+            damaged: damaged,
+            oldtimer: oldtimer,
+            navigation: navigation,
+            imageUrls: imageUrls, // Save image URLs in Firestore
+            username: username // Save the username in Firestore
+        });
+        console.log('Document added successfully.');
+        alert('Oglas uspješno objavljen!');
+    } catch (firestoreError) {
+        console.error('Error adding document:', firestoreError);
+        alert('Došlo je do greške prilikom objavljivanja oglasa.');
+    }
+});
+
+
+        });
+
+
+
+ // Initialize Firebase
+ console.log("Inicijalizacija Firebase-a...");
+        
+        console.log("Firebase inicijaliziran, baza podataka povezana.");
+ 
+        // LOGIN Function to handle login form submission
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginButton = document.querySelector('.auth-links a[href="#"]');
+            const registrationButton = document.querySelector('.auth-links a[href="registracija.html"]');
+            const usernameDisplay = document.querySelector('.auth-links .username');
+            const logoutButton = document.querySelector('.auth-links .logout-button');
+            const loginModal = document.getElementById('login-modal');
+            const closeModal = document.getElementById('close-modal');
+            const loginForm = document.getElementById('login-form');
+            
+            const username = localStorage.getItem('username');
+            
+            if (username) {
+                loginButton.style.display = 'none';
+                registrationButton.style.display = 'none';
+                if (usernameDisplay) {
+                    usernameDisplay.textContent = `Pozdrav, ${username}`;
+                    usernameDisplay.style.display = 'inline';
+                }
+                if (logoutButton) {
+                    logoutButton.style.display = 'inline';
+                }
+            } else {
+                loginButton.style.display = 'inline';
+                registrationButton.style.display = 'inline';
+                if (usernameDisplay) {
+                    usernameDisplay.style.display = 'none';
+                }
+                if (logoutButton) {
+                    logoutButton.style.display = 'none';
+                }
+            }
+            
+            if (logoutButton) {
+                logoutButton.addEventListener('click', () => {
+                    localStorage.removeItem('username');
+                    window.location.reload(); // Reload the page to update the UI
+                });
+            }
+            
+            if (loginButton) {
+                loginButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    loginModal.style.display = 'flex';
+                });
+            }
+            
+            if (closeModal) {
+                closeModal.addEventListener('click', () => {
+                    loginModal.style.display = 'none';
+                });
+            }
+            
+            window.addEventListener('click', (event) => {
+                if (event.target === loginModal) {
+                    loginModal.style.display = 'none';
+                }
+            });
+
+            loginForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const usernameInput = document.getElementById('username').value;
+                const passwordInput = document.getElementById('password').value;
+
+                try {
+                    const q = query(collection(db, "registracija"), where("username", "==", usernameInput), where("password", "==", passwordInput));
+                    const querySnapshot = await getDocs(q);
+                    
+                    if (!querySnapshot.empty) {
+                        // User exists and password is correct
+                        localStorage.setItem('username', usernameInput);
+                        window.location.reload(); // Reload the page to update the UI
+                    } else {
+                        alert("Neispravno korisničko ime ili šifra.");
+                    }
+                } catch (error) {
+                    console.error("Greška prilikom prijave: ", error);
+                    alert("Došlo je do greške pri prijavi.");
+                }
+            });
+        });
+
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+    const togglePassword = document.getElementById('toggle-password');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', () => {
+        // Toggle the type attribute of the password input
+        const type = passwordInput.type === 'password' ? 'text' : 'password';
+        passwordInput.type = type;
+        
+        // Toggle the icon between visibility and visibility_off
+        togglePassword.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+    });
+});
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const loginButton = document.querySelector('.auth-links a[href="#"]');
+    const registrationButton = document.querySelector('.auth-links a[href="registracija.html"]');
+    const usernameDisplay = document.querySelector('.auth-links .username');
+    const logoutButton = document.querySelector('.auth-links .logout-button');
+    const loginModal = document.getElementById('login-modal');
+    const closeModal = document.getElementById('close-modal');
+    const loginForm = document.getElementById('login-form');
+    const categoryMenu = document.getElementById('category-menu');
+    const publishBox = document.querySelector('.publish-box');
+
+    // Hide category menu if user is not logged in
+    const username = localStorage.getItem('username');
+    if (username) {
+        loginButton.style.display = 'none';
+        registrationButton.style.display = 'none';
+        if (usernameDisplay) {
+            usernameDisplay.textContent = `Pozdrav, ${username}`;
+            usernameDisplay.style.display = 'inline';
+        }
+        if (logoutButton) {
+            logoutButton.style.display = 'inline';
+        }
+        if (categoryMenu) {
+            categoryMenu.style.display = 'block'; // Show category menu
+        }
+    } else {
+        loginButton.style.display = 'inline';
+        registrationButton.style.display = 'inline';
+        if (usernameDisplay) {
+            usernameDisplay.style.display = 'none';
+        }
+        if (logoutButton) {
+            logoutButton.style.display = 'none';
+        }
+        if (categoryMenu) {
+            categoryMenu.style.display = 'none'; // Hide category menu
+        }
+    }
+    
+    // Handle logout
+    if (logoutButton) {
+        logoutButton.addEventListener('click', () => {
+            localStorage.removeItem('username');
+            window.location.reload(); // Reload the page to update the UI
+        });
+    }
+    
+    // Show login modal on login button click
+    if (loginButton) {
+        loginButton.addEventListener('click', (event) => {
+            event.preventDefault();
+            loginModal.style.display = 'flex';
+        });
+    }
+    
+    // Close modal on close button click
+    if (closeModal) {
+        closeModal.addEventListener('click', () => {
+            loginModal.style.display = 'none';
+        });
+    }
+    
+    // Close modal if clicked outside of modal
+    window.addEventListener('click', (event) => {
+        if (event.target === loginModal) {
+            loginModal.style.display = 'none';
+        }
+    });
+
+    // Handle login form submission
+    loginForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const usernameInput = document.getElementById('username').value;
+        const passwordInput = document.getElementById('password').value;
+
+        try {
+            const q = query(collection(db, "registracija"), where("username", "==", usernameInput), where("password", "==", passwordInput));
+            const querySnapshot = await getDocs(q);
+            
+            if (!querySnapshot.empty) {
+                // User exists and password is correct
+                localStorage.setItem('username', usernameInput);
+                loginModal.style.display = 'none'; // Hide modal after successful login
+                window.location.reload(); // Reload the page to update the UI
+            } else {
+                alert("Neispravno korisničko ime ili šifra.");
+            }
+        } catch (error) {
+            console.error("Greška prilikom prijave: ", error);
+            alert("Došlo je do greške pri prijavi.");
+        }
+    });
+
+    // Toggle password visibility
+    const togglePassword = document.getElementById('toggle-password');
+    const passwordInput = document.getElementById('password');
+    
+    if (togglePassword) {
+        togglePassword.addEventListener('click', () => {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            togglePassword.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+        });
+    }
+
+    // Handle category button clicks
+    const categoryButtons = document.querySelectorAll('.category-button');
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+            if (!username) {
+                event.preventDefault();
+                loginModal.style.display = 'flex';
+            } else {
+                // If user is logged in, allow category to open
+                const sectionId = button.getAttribute('data-section');
+                // Implement your logic to show the selected section
+                console.log(`Show section: ${sectionId}`);
+            }
+        });
+    });
+
+    // Handle publish button click
+    if (publishBox) {
+        publishBox.addEventListener('click', (event) => {
+            if (!username) {
+                event.preventDefault();
+                loginModal.style.display = 'flex';
+            }
+        });
+    }
+});
+
+
+        
+    </script>
+    
+    
+    
+    
+</head>
+<body>
+     <!-- Tamno plavi header -->
+     <header class="dark-blue-header">
+        <nav class="nav-bar">
+            <div class="left-links">
+                <a href="index.html">Početna</a>
+                <a href="#">Kategorije</a>
+                <a href="#">Shopovi</a>
+                <a href="#">Marketing</a>
+                <a href="#">Objavi oglas</a>
+            </div>
+            <div class="auth-links">
+                <a href="#">Prijavi se</a>
+                <a href="registracija.html">Registracija</a>
+                <span class="username" style="display:none;"></span>
+                <button class="logout-button" style="display:none;">Odjavi se</button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Svijetlo plavi bar -->
+    <div class="light-blue-bar">
+        <div class="logo">
+            <h1>Logo</h1>
+        </div>
+        <div class="search-bar">
+            <input type="text" placeholder="Pretraga">
+            <span class="material-icons">search</span>
+        </div>
+        <div class="publish-box">
+            <a href="objava.html">Objavite</a>
+        </div>
+    </div>
+
+    
+
+    <!-- Modal za prijavu -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-modal" class="close">&times;</span>
+            <h2>Prijavi se</h2>
+            <form id="login-form">
+                <label for="username">Korisničko ime ili email:</label>
+                <input type="text" id="username" name="username" required>
+
+                <label for="password">Šifra:</label>
+<div class="password-container">
+    <input type="password" id="password" name="password" required>
+    <span id="toggle-password" class="material-icons">visibility</span>
+</div>
+
+
+                <button type="submit">Prijavi se</button>
+                
+                <div class="modal-links">
+                    <a href="#">Zaboravili ste šifru?</a>
+                    <br>
+                    <a href="registracija.html">Nemate korisnički račun? Registruj se</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <main>
+        <div class="publish-section">
+            <!-- Prva sekcija: Odabir marke -->
+
+
+            <!-- Kategorije -->
+<div id="category-menu" class="category-menu">
+    <button id="category-automobili" class="category-button" data-section="brand-section">
+        <i class="material-icons">directions_car</i>
+        Automobili
+    </button>
+    <button id="category-nekretnine" class="category-button" data-section="property-section">
+        <i class="material-icons">home</i>
+        Nekretnine
+    </button>
+    <button id="category-posao" class="category-button" data-section="job-section">
+        <i class="material-icons">work</i>
+        Posao
+    </button>
+    <button id="category-usluga" class="category-button" data-section="service-section">
+        <i class="material-icons">build</i>
+        Usluga
+    </button>
+    <button id="category-drugo" class="category-button" data-section="other-section">
+        <i class="material-icons">add_circle</i>
+        Objavite nešto drugo
+    </button>
+</div>
+
+            
+
+            
+
+            <div id="brand-section">
+                <label for="short-description">Kratki opis:</label>
+            <textarea id="short-description" rows="4" cols="50"></textarea>
+                <label for="brand-select">Marka:</label>
+                <select id="brand-select">
+                    <option value="">Odaberi marku</option>
+                    <option value="Audi">Audi</option>
+                    <option value="BMW">BMW</option>
+                    <option value="Mercedes">Mercedes</option>
+                </select>
+            </div>
+
+            <!-- Druga sekcija: Odabir modela -->
+            <div id="model-section" style="display: none;">
+                <label for="model-select">Model:</label>
+                <select id="model-select">
+                    <option value="">Odaberi model</option>
+                </select>
+            </div>
+
+            <!-- Treća sekcija: Stanje, lokacija, cijena, opis -->
+            <div id="condition-section" style="display: none;">
+                <label for="condition-select">Stanje:</label>
+                <select id="condition-select">
+                    <option value="">Odaberi stanje</option>
+                    <option value="Novo">Novo</option>
+                    <option value="Koristeno">Korišteno</option>
+                </select>
+
+                <label for="location-select">Lokacija:</label>
+                <select id="location-select">
+                    <option value="">Odaberi lokaciju</option>
+                    <option value="Sarajevo">Sarajevo</option>
+                    <option value="Mostar">Mostar</option>
+                </select>
+
+                <label for="price">Cijena:</label>
+                <input type="number" id="price" placeholder="Unesite cijenu">
+
+                <label for="description">Detaljan opis:</label>
+                <textarea id="description" rows="4" cols="50"></textarea>
+            </div>
+
+            <!-- Četvrta sekcija: Dodatne informacije -->
+            <div id="additional-info-section" style="display: none;">
+                <h2>Dodatne informacije</h2>
+                <!-- Dodatna polja -->
+                <label for="godiste">Godište:</label>
+                <input type="number" id="godiste" placeholder="Unesite godište">
+
+                <label for="gorivo">Gorivo:</label>
+                <select id="gorivo">
+                    <option value="Dizel">Dizel</option>
+                    <option value="Benzin">Benzin</option>
+                </select>
+
+                <label for="transmisija">Transmisija:</label>
+                <select id="transmisija">
+                    <option value="Automatik">Automatik</option>
+                    <option value="Manuelni">Manuelni</option>
+                </select>
+
+                <label for="kilometraza">Kilometraža:</label>
+                <input type="number" id="kilometraza" placeholder="Unesite kilometražu">
+
+                <label for="kubikaza">Kubikaža:</label>
+                <input type="number" id="kubikaza" placeholder="Unesite kubikažu">
+
+                <label for="snaga">Snaga motora:</label>
+                <input type="number" id="snaga" placeholder="Unesite snagu motora">
+
+                <label for="vrata">Broj vrata:</label>
+                <select id="vrata">
+                    <option value="2/3">2/3</option>
+                    <option value="4/5">4/5</option>
+                </select>
+
+                <label for="konjske-snage">Konjske snage:</label>
+                <input type="number" id="konjske-snage" placeholder="Unesite konjske snage">
+
+                <label for="tip">Tip:</label>
+                <select id="tip">
+                    <option value="Limuzina">Limuzina</option>
+                    <option value="Sportsko">Sportsko</option>
+                    <option value="Karavan">Karavan</option>
+                </select>
+
+                <label for="pogon">Pogon:</label>
+                <select id="pogon">
+                    <option value="Prednji">Prednji</option>
+                    <option value="Zadnji">Zadnji</option>
+                </select>
+
+                <label for="prva-registracija">Godina prve registracije:</label>
+                <input type="number" id="prva-registracija" placeholder="Unesite godinu prve registracije">
+
+                <label for="boja">Boja:</label>
+                <input type="text" id="boja" placeholder="Unesite boju">
+
+                <label for="velicina-felgi">Veličina felgi:</label>
+                <input type="number" id="velicina-felgi" placeholder="Unesite veličinu felgi">
+
+                <label for="muzika">Muzika:</label>
+                <input type="text" id="muzika" placeholder="Unesite muziku">
+
+                <label for="parking-senzori">Parking senzori:</label>
+                <select id="parking-senzori">
+                    <option value="Prednji">Prednji</option>
+                    <option value="Zadnji">Zadnji</option>
+                    <option value="Nema">Nema</option>
+                </select>
+
+                <label for="parking-kamera">Parking kamera:</label>
+                <input type="text" id="parking-kamera" placeholder="Unesite parking kameru">
+
+                <label for="svjetla">Svjetla:</label>
+                <input type="text" id="svjetla" placeholder="Unesite svjetla">
+
+                <label for="zastita">Zaštita:</label>
+                <input type="text" id="zastita" placeholder="Unesite zaštitu">
+
+                <label for="broj-stepeni">Broj stepeni prijenosa:</label>
+                <input type="number" id="broj-stepeni" placeholder="Unesite broj stepeni prijenosa">
+
+                <label for="gume">Gume:</label>
+                <select id="gume">
+                    <option value="Ljetne">Ljetne</option>
+                    <option value="Zimske">Zimske</option>
+                </select>
+
+                <label for="emisioni-standard">Emisioni standard:</label>
+                <select id="emisioni-standard">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                </select>
+
+                <label for="masa">Masa (kg):</label>
+                <input type="number" id="masa" placeholder="Unesite masu">
+
+                <label for="vlasnici">Broj prethodnih vlasnika:</label>
+                <input type="number" id="vlasnici" placeholder="Unesite broj prethodnih vlasnika">
+            </div>
+
+<!-- Peta sekcija: Dodatne opcije -->
+<div id="options-section" style="display: none;">
+    <h2>Dodatne opcije</h2>
+    <label><input type="checkbox" id="registered"> Registrovan</label><br>
+    <label><input type="checkbox" id="metallic"> Metalik</label><br>
+    <label><input type="checkbox" id="damaged"> Oštećen</label><br>
+    <label><input type="checkbox" id="oldtimer"> Oldtimer</label><br>
+    <label><input type="checkbox" id="navigation"> Navigacija</label><br>
+</div>
+
+
+<!-- Šesta sekcija: Dodaj slike -->
+<div id="image-upload-section" style="display: none;">
+    <h2>Dodaj slike</h2>
+    <input type="file" id="image-upload" multiple accept="image/*">
+    
+</div>
+
+
+
+            <!-- Dugme za nastavak i objavljivanje -->
+            <button id="continue-button">Nastavi</button>
+            <button id="final-publish-button" style="display: none;">Objavi</button>
+        </div>
+    </main>
+
+    <footer>
+        <!-- Ovdje ide kod za footer -->
+    </footer>
+</body>
+</html>
+
+
+
+
+<style>
+
+.hidden {
+    display: none;
+}
+
+
+    /* Sakrij brand sekciju po defaultu */
+#brand-section {
+    display: none;
+}
+
+    /* Centrirani box koji sadrži sve sekcije */
+.publish-section {
+    width: 80%;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+}
+
+/* Stilizacija za naslov i labelu */
+.publish-section h2 {
+    margin-bottom: 20px;
+    font-size: 1.5em;
+    color: #333;
+}
+
+.publish-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+/* Stilizacija za inpute i select boxove */
+.publish-section input,
+.publish-section select,
+.publish-section textarea {
+    width: calc(100% - 20px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Stilizacija za dugmad */
+.publish-section button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 1em;
+    color: #fff;
+    background-color: #007BFF;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.publish-section button:hover {
+    background-color: #0056b3;
+}
+
+.publish-section button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+
+.category-menu {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.category-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+    font-size: 1em;
+    color: #333;
+    transition: color 0.3s ease;
+}
+
+.category-button:hover {
+    color: #007BFF;
+}
+
+.category-button i {
+    font-size: 2em;
+    display: block;
+    margin-bottom: 5px;
+}
+
+</style>
+
+

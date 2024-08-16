@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalji Automobila</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script type="module">
+       import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDD_aYHztx16Gp0f0icIO3CdM-XfoDsvr4",
+            authDomain: "pik1-374bc.firebaseapp.com",
+            projectId: "pik1-374bc",
+            storageBucket: "pik1-374bc.appspot.com",
+            messagingSenderId: "38745525009",
+            appId: "1:38745525009:web:a577fdad0e3cdbb25fdab0",
+            measurementId: "G-HZN6ZC9CG0"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const carId = urlParams.get('id');
+
+            if (!carId) {
+                alert("Nema ID-a automobila.");
+                return;
+            }
+
+            try {
+                const carDoc = doc(db, 'automobili', carId);
+                const docSnap = await getDoc(carDoc);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('car-image').src = data.imageUrls[0] || 'default-image-url';
+                    document.getElementById('short-description').textContent = ` ${data.shortDescription}`;
+                    document.getElementById('car-brand').textContent = ` ${data.brand}`;
+                    document.getElementById('car-model').textContent = ` ${data.model}`;
+                    document.getElementById('car-fuel').textContent = ` ${data.gorivo}`;
+                    document.getElementById('car-location').textContent = ` ${data.location}`;
+                    document.getElementById('car-mileage').textContent = ` ${data.kilometraza}`;
+                    document.getElementById('car-year').textContent = ` ${data.godiste}`;
+                    document.getElementById('car-price').textContent = `${data.price} KM`;
+                    document.getElementById('car-description').textContent = data.detaljniOpis;
+                    document.getElementById('car-transmisija').textContent = ` ${data.transmisija}`;
+                        document.getElementById('car-kubikaza').textContent = ` ${data.kubikaza}`;
+                        document.getElementById('car-snaga').textContent = ` ${data.snaga}`;
+                        document.getElementById('car-vrata').textContent = `${data.vrata}`;
+                        document.getElementById('car-konjske-snage').textContent = ` ${data.konjskeSnage}`;
+                        document.getElementById('car-tip').textContent = ` ${data.tip}`;
+                        document.getElementById('car-pogon').textContent = ` ${data.pogon}`;
+                        document.getElementById('car-prva-registracija').textContent = ` ${data.prvaRegistracija}`;
+                        document.getElementById('car-boja').textContent = ` ${data.boja}`;
+                        document.getElementById('car-velicina-felgi').textContent = ` ${data.velicinaFelgi}`;
+                        document.getElementById('car-muzika').textContent = ` ${data.muzika}`;
+                        document.getElementById('car-parking-senzori').textContent = `${data.parkingSenzori}`;
+                        document.getElementById('car-parking-kamera').textContent = ` ${data.parkingKamera}`;
+                        document.getElementById('car-svjetla').textContent = ` ${data.svjetla}`;
+                        document.getElementById('car-zastita').textContent = ` ${data.zastita}`;
+                        document.getElementById('car-broj-stepeni').textContent = ` ${data.brojStepeni}`;
+                        document.getElementById('car-gume').textContent = ` ${data.gume}`;
+                        document.getElementById('car-emisioni-standard').textContent = ` ${data.emisioniStandard}`;
+                        document.getElementById('car-masa').textContent = ` ${data.masa}`;
+                        document.getElementById('car-vlasnici').textContent = ` ${data.vlasnici}`;
+                        document.getElementById('description').textContent = ` ${data.description}`;
+                    
+                // Dohvati podatke o korisniku iz kolekcije 'registracija'
+                const username = data.username;
+                if (username) {
+                    const userQuery = query(collection(db, 'registracija'), where("username", "==", username));
+                    const userSnapshot = await getDocs(userQuery);
+
+                    if (!userSnapshot.empty) {
+                        const userDoc = userSnapshot.docs[0].data();
+                        document.getElementById('user-name').textContent = `Ime: ${userDoc.username || 'N/A'}`;
+                        document.getElementById('user-email').textContent = `Email: ${userDoc.email || 'N/A'}`;
+                        // Dodajte ostale podatke ako su dostupni
+                    // Dodajte prikaz slike
+        const profileImageUrl = userDoc.profileImageUrl;
+        if (profileImageUrl) {
+            document.getElementById('user-profile-image').src = profileImageUrl;
+            document.getElementById('user-profile-image').style.display = 'block'; // Učini sliku vidljivom
+        } else {
+            document.getElementById('user-profile-image').style.display = 'none'; // Sakrij sliku ako URL nije dostupan
+        }
+    } else {
+        document.getElementById('user-info').innerHTML = '<p>Korisnik nije pronađen.</p>';
+    }
+} else {
+    document.getElementById('user-info').innerHTML = '<p>Podaci o korisniku nisu dostupni.</p>';
+}
+            } else {
+                alert("Automobil nije pronađen.");
+            }
+        } catch (error) {
+            console.error("Greška prilikom dohvaćanja podataka:", error);
+        }
+    });
+
+
+
+
+
+
+ // Function to handle login form submission
+ document.addEventListener('DOMContentLoaded', () => {
+            const loginButton = document.querySelector('.auth-links a[href="#"]');
+            const registrationButton = document.querySelector('.auth-links a[href="registracija.html"]');
+            const usernameDisplay = document.querySelector('.auth-links .username');
+            const logoutButton = document.querySelector('.auth-links .logout-button');
+            const loginModal = document.getElementById('login-modal');
+            const closeModal = document.getElementById('close-modal');
+            const loginForm = document.getElementById('login-form');
+            
+            const username = localStorage.getItem('username');
+            
+            if (username) {
+                loginButton.style.display = 'none';
+                registrationButton.style.display = 'none';
+                if (usernameDisplay) {
+                    usernameDisplay.textContent = `Pozdrav, ${username}`;
+                    usernameDisplay.style.display = 'inline';
+                }
+                if (logoutButton) {
+                    logoutButton.style.display = 'inline';
+                }
+            } else {
+                loginButton.style.display = 'inline';
+                registrationButton.style.display = 'inline';
+                if (usernameDisplay) {
+                    usernameDisplay.style.display = 'none';
+                }
+                if (logoutButton) {
+                    logoutButton.style.display = 'none';
+                }
+            }
+            
+            if (logoutButton) {
+                logoutButton.addEventListener('click', () => {
+                    localStorage.removeItem('username');
+                    window.location.reload(); // Reload the page to update the UI
+                });
+            }
+            
+            if (loginButton) {
+                loginButton.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    loginModal.style.display = 'flex';
+                });
+            }
+            
+            if (closeModal) {
+                closeModal.addEventListener('click', () => {
+                    loginModal.style.display = 'none';
+                });
+            }
+            
+            window.addEventListener('click', (event) => {
+                if (event.target === loginModal) {
+                    loginModal.style.display = 'none';
+                }
+            });
+
+            loginForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                const usernameInput = document.getElementById('username').value;
+                const passwordInput = document.getElementById('password').value;
+
+                try {
+                    const q = query(collection(db, "registracija"), where("username", "==", usernameInput), where("password", "==", passwordInput));
+                    const querySnapshot = await getDocs(q);
+                    
+                    if (!querySnapshot.empty) {
+                        // User exists and password is correct
+                        localStorage.setItem('username', usernameInput);
+                        window.location.reload(); // Reload the page to update the UI
+                    } else {
+                        alert("Neispravno korisničko ime ili šifra.");
+                    }
+                } catch (error) {
+                    console.error("Greška prilikom prijave: ", error);
+                    alert("Došlo je do greške pri prijavi.");
+                }
+            });
+        });
+
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+    const togglePassword = document.getElementById('toggle-password');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', () => {
+        // Toggle the type attribute of the password input
+        const type = passwordInput.type === 'password' ? 'text' : 'password';
+        passwordInput.type = type;
+        
+        // Toggle the icon between visibility and visibility_off
+        togglePassword.textContent = type === 'password' ? 'visibility' : 'visibility_off';
+    });
+});
+
+    </script>
+</head>
+<body>
+
+
+    <body>
+        <!-- Tamno plavi header -->
+        <header class="dark-blue-header">
+            <nav class="nav-bar">
+                <div class="left-links">
+                    <a href="index.html">Početna</a>
+                    <a href="#">Kategorije</a>
+                    <a href="#">Shopovi</a>
+                    <a href="#">Marketing</a>
+                    <a href="#">Objavi oglas</a>
+                </div>
+                <div class="auth-links">
+                    <a href="#">Prijavi se</a>
+                    <a href="registracija.html">Registracija</a>
+                    <span class="username" style="display:none;"></span>
+                    <button class="logout-button" style="display:none;">Odjavi se</button>
+                </div>
+            </nav>
+        </header>
+    
+        <!-- Svijetlo plavi bar -->
+        <div class="light-blue-bar">
+            <div class="logo">
+                <h1>Logo</h1>
+            </div>
+            <div class="search-bar">
+                <input type="text" placeholder="Pretraga">
+                <span class="material-icons">search</span>
+            </div>
+            <div class="publish-box">
+                <a href="objava.html">Objavite</a>
+            </div>
+        </div>
+    
+        
+    
+        <!-- Modal za prijavu -->
+        <div id="login-modal" class="modal">
+            <div class="modal-content">
+                <span id="close-modal" class="close">&times;</span>
+                <h2>Prijavi se</h2>
+                <form id="login-form">
+                    <label for="username">Korisničko ime ili email:</label>
+                    <input type="text" id="username" name="username" required>
+    
+                    <label for="password">Šifra:</label>
+    <div class="password-container">
+        <input type="password" id="password" name="password" required>
+        <span id="toggle-password" class="material-icons">visibility</span>
+    </div>
+    
+    
+                    <button type="submit">Prijavi se</button>
+                    
+                    <div class="modal-links">
+                        <a href="#">Zaboravili ste šifru?</a>
+                        <br>
+                        <a href="registracija.html">Nemate korisnički račun? Registruj se</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </body>
+    </html>
+    
+    
+    
+    
+    <!-- Ostali sadržaj stranice -->
+    <main>
+        <!-- Reklamna slika -->
+        <div class="advertisement">
+            <img src="images/vrh1.jpg" alt="Reklamna slika" class="ad-image">
+        </div>
+    
+     
+
+
+
+        <div id="detail-container" class="detail-container">
+            <div class="info-box">
+                <img id="car-image" class="detail-image" src="" alt="Car Image">
+                <h1 id="short-description"></h1>
+                <h2 id="car-price"></h2>
+                <p id="car-description"></p>
+            </div>
+            <div class="info-box param-grid">
+                <div class="param-box">
+                    <p class="param-title bold">Brend</p>
+                    <p id="car-brand"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Model</p>
+                    <p id="car-model"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Lokacija</p>
+                    <p id="car-location"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Gorivo</p>
+                    <p id="car-fuel"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Kilometraža</p>
+                    <p id="car-mileage"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Godina</p>
+                    <p id="car-year"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Transmisija</p>
+                    <p id="car-transmisija"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Kubikaža</p>
+                    <p id="car-kubikaza"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Snaga</p>
+                    <p id="car-snaga"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Broj vrata</p>
+                    <p id="car-vrata"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Konjske snage</p>
+                    <p id="car-konjske-snage"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Tip</p>
+                    <p id="car-tip"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Pogon</p>
+                    <p id="car-pogon"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Prva registracija</p>
+                    <p id="car-prva-registracija"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Boja</p>
+                    <p id="car-boja"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Veličina felgi</p>
+                    <p id="car-velicina-felgi"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Muzika</p>
+                    <p id="car-muzika"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Parking senzori</p>
+                    <p id="car-parking-senzori"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Parking kamera</p>
+                    <p id="car-parking-kamera"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Svjetla</p>
+                    <p id="car-svjetla"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Zaštita</p>
+                    <p id="car-zastita"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Broj stepeni prijenosa</p>
+                    <p id="car-broj-stepeni"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Gume</p>
+                    <p id="car-gume"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Emisioni standard</p>
+                    <p id="car-emisioni-standard"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Masa</p>
+                    <p id="car-masa"></p>
+                </div>
+                <div class="param-box">
+                    <p class="param-title bold">Broj prethodnih vlasnika</p>
+                    <p id="car-vlasnici"></p>
+                </div>
+                <div class="desc-box">
+                    <p class="param-title bold">Detaljni opis</p>
+                    <p id="description"></p>
+                </div>
+            </div>
+        </div>
+        
+
+ <!-- Box za prikaz podataka o korisniku -->
+ <div id="user-info" class="user-info-box">
+    <h2>Informacije o korisniku</h2>
+    <img id="user-profile-image" src="" alt="Profilna slika" class="user-profile-image" style="display:none;">
+    <p id="user-name"></p>
+    <p id="user-email"></p>
+    <!-- Dodajte ostale podatke ako su dostupni -->
+</div>
+
+
+<div class="additional-box">
+    <img class="additional-image" src="images/ponuda katalog.webp" alt="Additional Image" onclick="redirectToPage()">
+</div>
+
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+<style>
+   .detail-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    transform: translateX(-100px); /* Pomjeranje ulijevo za 50px */
+}
+
+.info-box {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+}
+
+.param-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.param-box {
+    width: 45%; /* Dva boxa u jednom redu */
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: left; /* Tekst unutar boxa na lijevoj strani */
+}
+
+.desc-box{
+    width: 100%; /* Dva boxa u jednom redu */
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: left; /* Tekst unutar boxa na lijevoj strani */
+}
+.param-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    font-size: 14px; /* Manja veličina fonta za parametre */
+}
+
+.param-value {
+    font-size: 13px; /* Manja veličina fonta za vrijednosti */
+}
+
+
+.detail-image {
+    max-width: 100%;
+    height: auto;
+    margin: 10px 0;
+}  
+
+
+
+
+
+
+
+.user-info-box {
+    border: 1px solid #ddd;
+    padding: 16px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 20px;
+    text-align: center;
+    max-width: 250px; /* Podesi širinu prema potrebi */
+    transform: translateY(-1830px) translateX(-100px); /* Pomjeranje prema gore i ulijevo */
+    position: absolute; /* Postavljanje elementa u odnosu na roditelja */
+    right: 0; /* Element ostaje desno */
+}
+
+
+
+.user-profile-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+
+
+
+
+.additional-box {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    padding: 20px;
+    max-width: 250px; /* Podesi širinu prema potrebi */
+    transform: translateY(-1530px) translateX(-100px); /* Pomjeranje prema gore i ulijevo */
+    position: absolute; /* Postavljanje elementa u odnosu na roditelja */
+    right: 0; /* Element ostaje desno */
+}
+
+.additional-image {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+}
+
+
+
+</style>

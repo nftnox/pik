@@ -1,0 +1,272 @@
+/* Reset osnovnih stilova */
+body, h1, p, a {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+}
+
+/* Tamno plavi header */
+.dark-blue-header {
+    background-color: #003366; /* Tamno plava boja */
+    padding: 15px 0;
+}
+
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.left-links a, .auth-links a {
+    color: white;
+    text-decoration: none;
+    margin-right: 20px;
+    font-size: 16px;
+}
+
+.auth-links a {
+    margin-left: 20px;
+}
+
+/* Svijetlo plavi bar */
+.light-blue-bar {
+    background-color: #3399ff; /* Svijetlo plava boja */
+    padding: 15px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1700px;
+    margin: 0 auto;
+    padding: 0 20px;
+    width: 100%; /* Osigurava da zauzima cijelu širinu */
+    box-sizing: border-box;
+    height: 70px;
+}
+
+.logo h1 {
+    color: white;
+    font-size: 24px;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border-radius: 5px;
+    overflow: hidden;
+    padding-left: 10px;
+    width: 40%;
+}
+
+.search-bar input {
+    border: none;
+    padding: 10px;
+    font-size: 16px;
+    outline: none;
+    width: 100%;
+}
+
+.search-bar .material-icons {
+    color: gray;
+    padding: 10px;
+}
+
+.publish-box {
+    background-color: green;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+
+.publish-box a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+
+
+
+/* Tamno plavi header */
+.dark-blue-header {
+    background-color: #003366;
+    color: white;
+    padding: 10px 0;
+}
+
+.nav-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.left-links a,
+.auth-links a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.auth-links a {
+    font-weight: bold;
+}
+
+/* Svijetlo plavi bar */
+.light-blue-bar {
+    background-color: #e6f7ff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+}
+
+.search-bar input {
+    padding: 5px;
+    font-size: 16px;
+}
+
+.search-bar .material-icons {
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+/* Modal styling */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal content styling */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+    max-width: 500px;
+    border-radius: 10px;
+    height: 300px;
+}
+
+/* Close button styling */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+label, input, button {
+    margin-bottom: 10px;
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+}
+
+button {
+    padding: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+/* Links styling */
+.links {
+    margin-top: 10px;
+}
+
+.links a {
+    color: #4CAF50;
+    text-decoration: none;
+}
+
+.links a:hover {
+    text-decoration: underline;
+}
+
+
+/* Odjava dugme styling */
+.logout-button {
+    background-color: #f44336; /* Crvena boja za dugme za odjavu */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.logout-button:hover {
+    background-color: #e53935; /* Tamnija crvena boja kada se pređe mišem */
+}
+
+
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+#password {
+    padding-right: 30px; /* Make space for the eye icon */
+}
+
+#toggle-password {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    color: #666;
+}
+
+
+/* Reklamna slika */
+.advertisement {
+    text-align: center;
+    margin: 20px 0;
+}
+
+.ad-image {
+    width: 70%;
+    height: auto;
+    max-height: 200px; /* Adjust the height as needed */
+}
+

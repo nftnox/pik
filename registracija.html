@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registracija</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+      
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDD_aYHztx16Gp0f0icIO3CdM-XfoDsvr4",
+            authDomain: "pik1-374bc.firebaseapp.com",
+            projectId: "pik1-374bc",
+            storageBucket: "pik1-374bc.appspot.com",
+            messagingSenderId: "38745525009",
+            appId: "1:38745525009:web:a577fdad0e3cdbb25fdab0",
+            measurementId: "G-HZN6ZC9CG0"
+        };
+      
+        // Initialize Firebase
+        console.log("Inicijalizacija Firebase-a...");
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+        console.log("Firebase inicijaliziran, baza podataka povezana.");
+      
+        // Function to handle form submission
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.querySelector('.registration-form');
+            
+            form.addEventListener('submit', async (event) => {
+                event.preventDefault(); // Prevent form from submitting the traditional way
+                
+                const email = document.getElementById('email').value;
+                const phone = document.getElementById('phone').value;
+                const username = document.getElementById('username').value;
+                const password = document.getElementById('password').value;
+                const gender = document.getElementById('gender').value;
+                const birthYear = document.getElementById('birth-year').value;
+                const region = document.getElementById('region').value;
+                const terms = document.getElementById('terms').checked;
+                const profileImage = document.getElementById('profile-image').files[0];
+                
+                console.log("Podaci prikupljeni: ", { email, phone, username, password, gender, birthYear, region, terms });
+
+                try {
+                    let profileImageUrl = '';
+                    if (profileImage) {
+                        const imageRef = ref(storage, 'profileImages/' + username + '/' + profileImage.name);
+                        await uploadBytes(imageRef, profileImage);
+                        profileImageUrl = await getDownloadURL(imageRef);
+                    }
+
+                    const docRef = await addDoc(collection(db, "registracija"), {
+                        email: email,
+                        phone: phone,
+                        username: username,
+                        password: password, // Save the password
+                        gender: gender,
+                        birthYear: birthYear,
+                        region: region,
+                        terms: terms,
+                        profileImageUrl: profileImageUrl,
+                        timestamp: new Date().toISOString() // optional: to store the registration time
+                    });
+                    console.log("Registracija uspješna! ID dokumenta: " + docRef.id);
+                    alert("Registracija uspješna! ID dokumenta: " + docRef.id);
+                    
+                    // Save username to localStorage
+                    localStorage.setItem('username', username);
+
+                    // Redirect to index.html
+                    window.location.href = 'index.html';
+                } catch (e) {
+                    console.error("Greška prilikom dodavanja dokumenta: ", e);
+                    alert("Došlo je do greške pri registraciji.");
+                }
+            });
+
+            // Toggle password visibility
+            const passwordInput = document.getElementById('password');
+            const togglePasswordButton = document.getElementById('toggle-password');
+            
+            togglePasswordButton.addEventListener('click', () => {
+                const type = passwordInput.type === 'password' ? 'text' : 'password';
+                passwordInput.type = type;
+                togglePasswordButton.classList.toggle('active');
+            });
+        });
+    </script>
+    
+</head>
+<body>
+    <div class="registration-container">
+        <form class="registration-form">
+            <h2>Registracija</h2>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="phone">Broj telefona:</label>
+            <input type="tel" id="phone" name="phone" required>
+
+            <label for="username">Vaše Pik ime:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Šifra:</label>
+            <div class="password-container">
+                <input type="password" id="password" name="password" required>
+                <span id="toggle-password" class="material-icons password-toggle">visibility</span>
+            </div>
+
+            <label for="gender">Spol:</label>
+            <select id="gender" name="gender" required>
+                <option value="musko">Muško</option>
+                <option value="zensko">Žensko</option>
+            </select>
+
+            <label for="birth-year">Godište:</label>
+            <input type="number" id="birth-year" name="birth-year" required min="1900" max="2024">
+
+            <label for="region">Regija:</label>
+            <select id="region" name="region" required>
+                <option value="" disabled style="color:red;">Federacija</option>
+                <option value="unsko-sanski">Unsko-sanski kanton</option>
+                <option value="posavski">Posavski kanton</option>
+                <option value="sarajevo">Kanton Sarajevo</option>
+                <option value="" disabled style="color:red;">RS</option>
+                <option value="banjalucki">Banjalučki</option>
+                <option value="" disabled style="color:red;">Brčko Distrikt</option>
+                <option value="brcko">Brčko Distrikt</option>
+            </select>
+
+            <label for="profile-image">Profilna slika:</label>
+            <input type="file" id="profile-image" name="profile-image" accept="image/*">
+
+            <div class="terms">
+                <input type="checkbox" id="terms" name="terms" required>
+                <label for="terms">Slažem se sa uslovima korištenja</label>
+            </div>
+
+            <button type="submit" class="register-button">Registruj se</button>
+        </form>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+<style>
+    /* Reset osnovnih stilova */
+body, h1, p, a, input, select, label, button {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.registration-container {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 300px;
+}
+
+.registration-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.registration-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 14px;
+}
+
+.registration-form input, .registration-form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.registration-form select option[disabled] {
+    color: red;
+}
+
+.terms {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.terms label {
+    margin-left: 5px;
+    font-size: 14px;
+}
+
+.register-button {
+    width: 100%;
+    padding: 10px;
+    background-color: green;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.register-button:hover {
+    background-color: darkgreen;
+}
+
+
+/* Add the styles for the password toggle icon */
+.password-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-container input[type="password"] {
+            padding-right: 30px; /* Add space for the icon */
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            cursor: pointer;
+        }
+
+        .password-toggle.active {
+            color: #4CAF50; /* Change color when active */
+        }
+</style>
+
+
+
